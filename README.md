@@ -1,22 +1,20 @@
 Enqueue for Codeigniter
 =======================
 
-Setup
------
+##Setup
 
-1. Copy the file from libraries/Enqueue.php to your Application Library folder (PATH/TO/APP/libraries/).
-2. Copy the file from config/enqueue.php to your Application Config folder (PATH/TO/APP/config/).
-3. (Optional) Add 'enqueue' to you're autoload file (PATH/TO/APP/config/autoload.php).
+1. Copy the file from `libraries/Enqueue.php` to your Application Library folder (`PATH/TO/APP/libraries/`).
+2. Copy the file from `config/enqueue.php` to your Application Config folder (`PATH/TO/APP/config/`).
+3. (Optional) Add 'enqueue' to you're autoload file (`PATH/TO/APP/config/autoload.php`).
 
-Usage
------
+##Usage
 
-If you don't autoloaded the library, you can call $this->load->library('enqueue') from your controller or model to use the library.
+If you don't autoloaded the library, you can call `$this->load->library('enqueue')`; from your controller or model to use the library.
 
 In your views:
-    1. Add $this->enqueue->load_styles() just before the end of <head> tag.
-    2. Add $this->enqueue->load_scripts_head() also at the end of the <head> tag.
-    3. Add $this->enqueue->load_scripts_footer() just before the end of <body> tag.
+1. Add `$this->enqueue->load_styles();` just before the end of `<head>` tag.
+2. Add `$this->enqueue->load_scripts_head();` also at the end of the `<head>` tag.
+3. Add `$this->enqueue->load_scripts_footer();` just before the end of `<body>` tag.
     
 In your controllers or models add:
 
