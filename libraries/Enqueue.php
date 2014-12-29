@@ -3,7 +3,7 @@
 /**
 * Enqueue Class for Codeigniter
 *
-* @version 0.1
+* @version 0.2
 * @author TomCandia
 *
 **/
@@ -40,12 +40,16 @@ class Enqueue {
         $default_styles = $config['enqueue_default_style'];
         
         foreach($default_scripts as $name => $script){
-            $this->scripts[$name] = $script;
-            
+            $this->scripts[$name]['path'] = isset($script['path']) ? $script['path'] : '';
+            $this->scripts[$name]['deps'] = isset($script['deps']) ? $script['deps'] : FALSE;
+            $this->scripts[$name]['async'] = isset($script['async']) ? $script['async'] : FALSE;
+            $this->scripts[$name]['footer'] = isset($script['footer']) ? $script['footer'] : FALSE;
         }
         
         foreach($default_styles as $name => $style) {
-            $this->styles[$name] = $style;
+            $this->styles[$name]['path'] = isset($style['path']) ? $style['path'] : '';
+            $this->styles[$name]['deps'] = isset($style['deps']) ? $style['deps'] : FALSE;
+            $this->styles[$name]['media'] = isset($style['media']) ? $style['media'] : 'all';
         }
         
     }
@@ -61,19 +65,19 @@ class Enqueue {
     * @param string|bool    $src        Path to the script. It must be relative to the root directory.
     *                                   Example: 'assets/js/script.js'.
     * @param array|bool     $dependency Optional. An array of the names of scripts this script depends on.
-    * @param bool           $in_footer  Optional. Whether the script goes in footer or not.
+    * @param bool           $footer     Optional. Whether the script goes in footer or not.
     * @param bool           $async      Optional. If set to true, the script will be loaded asynchronously
     *
     * @return void
     **/
-    public function enqueue_script($name,$src = FALSE,$dependency = FALSE, $in_footer = FALSE, $async = FALSE) {
+    public function script($name,$src = FALSE,$dependency = FALSE, $footer = FALSE, $async = FALSE) {
         
         if($src && !isset($this->scripts[$name])) {
             $this->scripts[$name] = array(
                 'path'          => $script,
-                'dependency'    => $dependency,
+                'deps'          => $dependency,
                 'async'         => $async,
-                'in_footer'     => $in_footer
+                'footer'        => $footer
             );
         }
         
@@ -96,27 +100,56 @@ class Enqueue {
     *
     * @return void
     **/
-    public function enqueue_style($name, $src = FALSE, $dependency = FALSE,$media = 'all') {
+    public function style($name, $src = FALSE, $dependency = FALSE,$media = 'all') {
         
         if($src && !isset($this->styles[$name])) {
             $this->styles[$name] = array(
                 'path'          => $src,
-                'dependency'    => $dependency,
+                'deps'          => $dependency,
                 'media'         => $media
             );
         }
         
     }
     
+    /**
+    * Remove enqueue script
+    *
+    * @since 0.2
+    *
+    **/
+    public function remove_script($name) {
+        if(isset($this->scripts[$name])) {
+            unset($this->scripts[$name]);
+        }
+    }
+    
+    /**
+    * Remove enqueue style
+    *
+    * @since 0.2
+    *
+    **/
+    public function remove_style($name) {
+        if(isset($this->styles[$name])) {
+            unset($this->styles[$name]);
+        }
+    }
+    
+    /**
+    * Load scripts head
+    *
+    * @since 0.1
+    *
+    **/
     public function load_scripts_head() {
-        
         
         echo '<!-- Loading Javascript -->';
         foreach($this->scripts as $name => $script) {
             
-            if(!$script['in_footer'] && !in_array($name,$this->enqueue_scripts)) {
-                if($script['dependency'] && is_array($script['dependency'])){
-                    foreach($script['dependency'] as $depen) {
+            if(!$script['footer'] && !in_array($name,$this->enqueue_scripts)) {
+                if($script['deps'] && is_array($script['deps'])){
+                    foreach($script['deps'] as $depen) {
                         if(!in_array($depen, $this->enqueue_scripts)) {
                             $this->make_enqueue_script($depend);
                         }
@@ -133,14 +166,20 @@ class Enqueue {
         
     }
     
+    /**
+    * Load scrips footer
+    *
+    * @since 0.1
+    *
+    **/
     public function load_scripts_footer() {
         
         echo '<!-- Loading Javascript -->'.PHP_EOL;
         
         foreach($this->scripts as $name => $script) {
-            if($script['in_footer'] && !in_array($name, $this->enqueue_scripts)) {
-                if($script['dependency'] && is_array($script['dependency'])) {
-                    foreach($script['dependency'] as $depend) {
+            if($script['footer'] && !in_array($name, $this->enqueue_scripts)) {
+                if($script['deps'] && is_array($script['deps'])) {
+                    foreach($script['deps'] as $depend) {
                         if(!in_array($depen, $this->enqueue_scripts)) {
                             $this->make_enqueue_script($depend);
                         }
@@ -156,14 +195,20 @@ class Enqueue {
         echo '<!-- End of scripts loading -->'.PHP_EOL;
     }
     
+    /**
+    * Load styles
+    *
+    * @since 0.1
+    *
+    **/
     public function load_styles() {
         
         echo '<!-- Loading CSS -->'.PHP_EOL;
         
         foreach($this->styles as $name => $style) {
             if(!in_array($name, $this->enqueue_styles)) {
-                if($style['dependency'] && is_array($style['dependency'])) {
-                    foreach($style['dependency'] as $depend) {
+                if($style['deps'] && is_array($style['deps'])) {
+                    foreach($style['deps'] as $depend) {
                         if(!in_array($depen, $this->enqueue_styles)) {
                             $this->make_enqueue_style($depend);
                         }
@@ -179,6 +224,12 @@ class Enqueue {
         echo '<!-- End of style loading -->'.PHP_EOL;
     }
     
+    /**
+    * Make enqueue script
+    *
+    * @since 0.1
+    *
+    **/
     protected function make_enqueue_script($name) {
         
         if(isset($this->scripts[$name])) {
@@ -196,6 +247,12 @@ class Enqueue {
         }
     }
     
+    /**
+    * Make enqueue style
+    *
+    * @since 0.1
+    *
+    **/
     protected function make_enqueue_style($name) {
         
         if(isset($this->styles[$name])) {
