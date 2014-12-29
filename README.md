@@ -12,6 +12,7 @@ Enqueue for Codeigniter
 If you don't autoloaded the library, you can call `$this->load->library('enqueue')`; from your controller or model to use the library.
 
 In your views:
+
 1. Add `$this->enqueue->load_styles();` just before the end of `<head>` tag.
 2. Add `$this->enqueue->load_scripts_head();` also at the end of the `<head>` tag.
 3. Add `$this->enqueue->load_scripts_footer();` just before the end of `<body>` tag.
